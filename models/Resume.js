@@ -10,6 +10,14 @@ const resumeSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    email: {
+        type: String,
+        required: true
+    },
+    position: {
+        type: String,
+        required: true
+    },
     summary: {
         type: String,
         required: true

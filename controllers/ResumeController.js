@@ -17,13 +17,15 @@ exports.createResume = async (req, res) => {
         const newResume = new Resume({
             user: req.userId,
             name: req.body.name,
+            email: req.body.email,
+            position: req.body.position,
             summary: req.body.summary,
             experience: req.body.experience,
             education: req.body.education,
             skills: req.body.skills
         });
         await newResume.save();
-        res.json({
+        res.status(201).json({
             "message": "resume created Successfully",
             "data": newResume 
         });
@@ -79,7 +81,10 @@ exports.deleteResume = async (req, res) => {
         if (!resume) {
             res.status(404).json('Resume not found');
         } else {
-            res.json('Resume deleted successfully');
+            res.json({
+                "message":'Resume deleted successfully',
+                "data" : resume
+            });
         }
     } catch (error) {
         res.status(500).json(error);

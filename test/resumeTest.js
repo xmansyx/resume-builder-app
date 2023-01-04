@@ -1,19 +1,20 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
-const app = require('../app');
+const app = require('../index');
 
 const expect = chai.expect;
 chai.use(chaiHttp);
 
 let authToken;
+let resumeId;
 
-describe('POST /signup', () => {
+describe('POST /api/signup', () => {
     it('should create a new user', (done) => {
         chai.request(app)
-            .post('/users')
+            .post('/api/signup')
             .send({
                 name: 'Jane Doe',
-                email: 'jane.doe@example.com',
+                email: 'john.doe@example.com',
                 password: 'password'
             })
             .end((err, res) => {
@@ -36,11 +37,38 @@ describe('API Endpoints', () => {
             })
             .end((err, res) => {
                 expect(err).to.be.null;
-                expect(res).to.have.status(200);
+                expect(res).to.have.status(201);
                 expect(res.body).to.have.property('token');
                 authToken = res.body.token;
                 done();
             });
+    });
+
+    describe('POST /api/resumes', () => {
+        it('should create a new resume', (done) => {
+            chai.request(app)
+                .post('/api/resumes')
+                .set('authorization', `${authToken}`)
+                .send({
+                    name: 'Jane Doe',
+                    email: 'jane.doe@example.com',
+                    position: 'Software Engineer',
+                    summary: "Software Engineer",
+                    skills: [
+                        'JavaScript',
+                        'React',
+                        'Node.js'
+                    ]
+                })
+                .end((err, res) => {
+                    expect(err).to.be.null;
+                    expect(res).to.have.status(201);
+                    expect(res.body).to.be.an('object');
+                    expect(res.body.data).to.have.property('_id');
+                    resumeId = res.body.data._id;
+                    done();
+                });
+        });
     });
 
     describe('GET /api/resumes', () => {
@@ -59,7 +87,7 @@ describe('API Endpoints', () => {
 
     describe('GET /api/resumes/:id', () => {
         it('should return a single resume', (done) => {
-            const id = '12345';
+            const id = resumeId;
             chai.request(app)
                 .get(`/api/resumes/${id}`)
                 .set('authorization', `${authToken}`)
@@ -73,34 +101,9 @@ describe('API Endpoints', () => {
         });
     });
 
-    describe('POST /resumes', () => {
-        it('should create a new resume', (done) => {
-            chai.request(app)
-                .post('/resumes')
-                .set('authorization', `${authToken}`)
-                .send({
-                    name: 'Jane Doe',
-                    email: 'jane.doe@example.com',
-                    position: 'Software Engineer',
-                    skills: [
-                        'JavaScript',
-                        'React',
-                        'Node.js'
-                    ]
-                })
-                .end((err, res) => {
-                    expect(err).to.be.null;
-                    expect(res).to.have.status(201);
-                    expect(res.body).to.be.an('object');
-                    expect(res.body).to.have.property('_id');
-                    done();
-                });
-        });
-    });
-
     describe('PUT /api/resumes/:id', () => {
         it('should update an existing resume', (done) => {
-            const id = '12345';
+            const id = resumeId;
             chai.request(app)
                 .put(`/api/resumes/${id}`)
                 .set('authorization', `${authToken}`)
@@ -111,7 +114,7 @@ describe('API Endpoints', () => {
                     expect(err).to.be.null;
                     expect(res).to.have.status(200);
                     expect(res.body).to.be.an('object');
-                    expect(res.body.position).to.equal('Full Stack Developer');
+                    expect(res.body.data.position).to.equal('Full Stack Developer');
                     done();
                 });
         });
@@ -119,7 +122,7 @@ describe('API Endpoints', () => {
 
     describe('DELETE /api/resumes/:id', () => {
         it('should delete an existing resume', (done) => {
-            const id = '12345';
+            const id = resumeId;
             chai.request(app)
                 .delete(`/api/resumes/${id}`)
                 .set('authorization', `${authToken}`)
@@ -127,7 +130,7 @@ describe('API Endpoints', () => {
                     expect(err).to.be.null;
                     expect(res).to.have.status(200);
                     expect(res.body).to.be.an('object');
-                    expect(res.body._id).to.equal(id);
+                    expect(res.body.data._id).to.equal(id);
                     done();
                 });
         });
