@@ -39,7 +39,7 @@ The response will include a JWT that can be used to authenticate subsequent requ
 
 ## API Reference
 
-#### Get all resumes
+#### Create a Resume
 
 ```http
   curl -X GET \
@@ -49,7 +49,45 @@ The response will include a JWT that can be used to authenticate subsequent requ
 
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
-| `api_key` | `string` | **Required**. Your API key |
+| `name` | `string` | **Required**. Your Name|
+| `email` | `string` | **Required**. Your Email|
+| `position` | `string` | **Required**. Your current position|
+| `summary` | `string` | **Required**. Your desired summary|
+| `experince` | `object` | contains these keys{company, startDate, endDate, title, description}|
+| `education` | `array` | contains these keys{school, startDate, endDate, fieldOfStudy, degree}|
+| `skills` | `array` | list of your skills|
+
+
+
+
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+[
+  {
+    "_id": "12345",
+    "name": "John Doe",
+    "email": "john.doe@example.com",
+    "position": "Software Developer",
+    "skills": [
+      "JavaScript",
+      "Node.js",
+      "MongoDB"
+    ]
+  },
+  // More resumes...
+]
+
+```
+#### Get all resumes
+
+```http
+  curl -X GET \
+  /api/resumes \
+  -H 'authorization: {JWT}'
+```
 
 ```
 HTTP/1.1 200 OK
